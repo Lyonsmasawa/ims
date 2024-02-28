@@ -62,6 +62,7 @@
       <div class="jumbotron">
         <div class="header">{{header}}</div>
           <div class="row">
+            .column
                 <form action="" class="py-4" method="post">
                   {% csrf_token %} {{form|crispy}}
                   <input type="submit" value="search" />
