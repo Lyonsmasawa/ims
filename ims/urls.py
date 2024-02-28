@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from .views import *
 
 urlpatterns = [
@@ -11,4 +11,5 @@ urlpatterns = [
     path('issue_items/<str:pk>', issue_items, name="issue_items"),
     path('receive_items/<str:pk>', receive_items, name="receive_items"),
     path('reorder_level/<str:pk>', reorder_level, name="reorder_level"),
+    path('accounts/', include('registration.backends.simple.urls')),
 ]

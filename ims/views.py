@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 import csv
 from django.http import HttpResponse
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from .models import *
 from .forms import *
 
@@ -15,6 +16,7 @@ def home(request):
     return render(request, 'home.html', context)
 
 
+@login_required
 def list_items(request):
     header = 'list of items'
     form = StockSearchForm(request.POST or None)
@@ -42,6 +44,7 @@ def list_items(request):
     return render(request, "list_items.html",  context)
 
 
+@login_required
 def add_items(request):
     form = StockCreateForm(request.POST or None)
     if form.is_valid():
@@ -55,6 +58,7 @@ def add_items(request):
     return render(request, "add_items.html", context)
 
 
+@login_required
 def update_items(request, pk):
     queryset = Stock.objects.get(id=pk)
     form = StockUpdateForm(instance=queryset)
@@ -70,6 +74,7 @@ def update_items(request, pk):
     return render(request, "add_items.html", context)
 
 
+@login_required
 def delete_items(request, pk):
     queryset = Stock.objects.get(id=pk)
     if request.method == 'POST':
@@ -80,6 +85,7 @@ def delete_items(request, pk):
     return render(request, "delete.html")
 
 
+@login_required
 def stock_detail(request, pk):
     queryset = Stock.objects.get(id=pk)
 
@@ -89,6 +95,7 @@ def stock_detail(request, pk):
     return render(request, "stock_detail.html", context)
 
 
+@login_required
 def issue_items(request, pk):
     queryset = Stock.objects.get(id=pk)
     form = IssueForm(request.POST or None, instance=queryset)
@@ -108,6 +115,7 @@ def issue_items(request, pk):
     return render(request, "add_items.html", context)
 
 
+@login_required
 def receive_items(request, pk):
     queryset = Stock.objects.get(id=pk)
     form = ReceiveForm(request.POST or None, instance=queryset)
@@ -127,6 +135,7 @@ def receive_items(request, pk):
     return render(request, "add_items.html", context)
 
 
+@login_required
 def reorder_level(request, pk):
     queryset = Stock.objects.get(id=pk)
     form = ReorderLevelForm(request.POST or None, instance=queryset)
@@ -141,3 +150,30 @@ def reorder_level(request, pk):
         "instance": queryset
     }
     return render(request, "add_items.html", context)
+
+@login_required
+def list_items(request):
+    header = 'list of items'
+    form = StockSearchForm(request.POST or None)
+    queryset = Stock.objects.all()
+
+    if request.method == 'POST':
+        queryset = Stock.objects.filter(  # category__icontains=form['category'].value(),
+            item_name__icontains=form['item_name'].value())
+        if form['export_to_CSV'].value() == True:
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Desposition'] = 'attachmnet; filename = "List of stocks.csv'
+            writer = csv.writer(response)
+            writer.writerow(['CATEGORY', 'ITEM_NAME', 'QUANTITY'])
+            instance = queryset
+            for stock in instance:
+                writer.writerow(
+                    {stock.category, stock.item_name, stock.quantity})
+            return response
+    context = {
+        "header": header,
+        'form': form,
+        "queryset": queryset
+    }
+
+    return render(request, "list_items.html",  context)
