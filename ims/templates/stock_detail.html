@@ -61,12 +61,14 @@
 
       <div class="jumbotron">
         <div class="header">{{header}}</div>
-        <a href="#issue" class="btn btn-danger"><div>ISSUE THIS ITEM</div></a>
-        <a href="#receive" class="btn btn-danger"
+        <a href="{% url 'issue_items' queryset.id %}" class="btn btn-danger"
+          ><div>ISSUE THIS ITEM</div></a
+        >
+        <a href="{% url 'receive_items' queryset.id %}" class="btn btn-danger"
           ><div>RECEIVE THIS ITEM</div>
         </a>
-        <br>
-        <br>
+        <br />
+        <br />
         <div class="display-table">
           <table>
             <thead>
@@ -81,7 +83,7 @@
               <td>{{queryset.item_name}}</td>
               <td>{{queryset.quantity}}</td>
               <td>{{queryset.last_updated}}</td>
-              <td></td>
+              <td>{{queryset.reorder_level}}</td>
             </tr>
           </table>
         </div>

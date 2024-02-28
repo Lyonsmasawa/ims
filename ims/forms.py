@@ -41,10 +41,10 @@ class StockUpdateForm(forms.ModelForm):
 class IssueForm(forms.ModelForm):
     class Meta:
         model = Stock
-        fields = ['issue_quantity', 'itee', 'quantity']
+        fields = ['issue_quantity', 'issue_to']
 
 
 class ReceiveForm(forms.ModelForm):
     class Meta:
         model = Stock
-        fields = ['category', 'item_name', 'quantity']
+        fields = ['receive_quantity', 'receive_by']

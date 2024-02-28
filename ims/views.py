@@ -87,3 +87,41 @@ def stock_detail(request, pk):
         "queryset": queryset,
     }
     return render(request, "stock_detail.html", context)
+
+
+def issue_items(request, pk):
+    queryset = Stock.objects.get(id=pk)
+    form = IssueForm(request.POST or None, instance=queryset)
+    if form.is_valid():
+        instance = form.save(commit=False)
+        instance.quantity -= instance.issue_quantity
+        instance.issue_by = str(request.user)
+        messages.success(request, 'Issued successfully.' + str(instance.quantity) +
+                         " " + str(instance.item_name) + "s now left in store")
+        return redirect('/stock_detail/' + str(instance.id))
+    context = {
+        "form": form,
+        "queryset": queryset,
+        "title": "Issue " + str(queryset.item_name),
+        "username": "Issue By: " + str(request.user)
+    }
+    return render(request, "add_items.html", context)
+
+
+def receive_items(request, pk):
+    queryset = Stock.objects.get(id=pk)
+    form = ReceiveForm(request.POST or None, instance=queryset)
+    if form.is_valid():
+        instance = form.save(commit=False)
+        instance.quantity += instance.issue_quantity
+        instance.issue_by = str(request.user)
+        messages.success(request, 'Received successfully.' + str(instance.quantity) +
+                         " " + str(instance.item_name) + "s now left in store")
+        return redirect('/stock_detail/' + str(instance.id))
+    context = {
+        "form": form,
+        "queryset": queryset,
+        "title": "Receive " + str(queryset.item_name),
+        "username": "Receive By: " + str(request.user)
+    }
+    return render(request, "add_items.html", context)
