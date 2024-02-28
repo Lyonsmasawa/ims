@@ -151,15 +151,21 @@ def reorder_level(request, pk):
     }
     return render(request, "add_items.html", context)
 
+
 @login_required
-def list_items(request):
+def list_history(request):
     header = 'list of items'
-    form = StockSearchForm(request.POST or None)
-    queryset = Stock.objects.all()
+    form = StockHistorySearchForm(request.POST or None)
+    queryset = StockHistory.objects.all()
 
     if request.method == 'POST':
-        queryset = Stock.objects.filter(  # category__icontains=form['category'].value(),
-            item_name__icontains=form['item_name'].value())
+        queryset = StockHistory.objects.filter(  # category__icontains=form['category'].value(),
+            item_name__icontains=form['item_name'].value(),
+            last_updated__range=[
+                form['start_date'].value(),
+                form['end_date'].value(),
+            ]
+        )
         if form['export_to_CSV'].value() == True:
             response = HttpResponse(content_type='text/csv')
             response['Content-Desposition'] = 'attachmnet; filename = "List of stocks.csv'
@@ -176,4 +182,4 @@ def list_items(request):
         "queryset": queryset
     }
 
-    return render(request, "list_items.html",  context)
+    return render(request, "list_history.html",  context)

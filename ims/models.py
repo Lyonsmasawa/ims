@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Create your models here.
 # category_choice = (
@@ -57,3 +59,42 @@ class StockHistory(models.Model):
 
     def __str__(self) -> str:
         return self.item_name + " " + str(self.quantity)
+
+
+@receiver(post_save, sender=Stock)
+def track_stock_changes(sender, instance, created, **kwargs):
+    if created:
+        # If a new Stock object is created, create a corresponding StockHistory entry
+        StockHistory.objects.create(
+            category=instance.category,
+            item_name=instance.item_name,
+            quantity=instance.quantity,
+            receive_quantity=instance.receive_quantity,
+            receive_by=instance.receive_by,
+            issue_quantity=instance.issue_quantity,
+            issue_by=instance.issue_by,
+            issue_to=instance.issue_to,
+            phone_number=instance.phone_number,
+            created_by=instance.created_by,
+            reorder_level=instance.reorder_level,
+            last_updated=instance.last_updated,
+            timestamp=instance.timestamp
+        )
+    else:
+        # If an existing Stock object is updated, create a new StockHistory entry
+        # to capture the changes
+        StockHistory.objects.create(
+            category=instance.category,
+            item_name=instance.item_name,
+            quantity=instance.quantity,
+            receive_quantity=instance.receive_quantity,
+            receive_by=instance.receive_by,
+            issue_quantity=instance.issue_quantity,
+            issue_by=instance.issue_by,
+            issue_to=instance.issue_to,
+            phone_number=instance.phone_number,
+            created_by=instance.created_by,
+            reorder_level=instance.reorder_level,
+            last_updated=instance.last_updated,
+            timestamp=instance.timestamp
+        )

@@ -1,5 +1,10 @@
 body {
     background-color: #666b68;
+    width: 100vw;
+}
+
+.container {
+    width: 100vw;
 }
 
 table {
