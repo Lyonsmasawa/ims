@@ -183,3 +183,119 @@ def list_history(request):
     }
 
     return render(request, "list_history.html",  context)
+
+
+def inventory_overview(request):
+    # Fetch inventory data
+    stocks = Stock.objects.all()
+
+    # Extract relevant data for visualization
+    item_names = [stock.item_name for stock in stocks]
+    quantities = [stock.quantity for stock in stocks]
+
+    # Create bar chart
+    bar_chart = go.Bar(x=item_names, y=quantities)
+
+    # Create layout for the chart
+    layout = go.Layout(title='Inventory Overview',
+                       xaxis=dict(title='Item Name'),
+                       yaxis=dict(title='Quantity'))
+
+    # Create figure and add chart and layout
+    figure = go.Figure(data=[bar_chart], layout=layout)
+
+    # Convert figure to HTML
+    chart_div = figure.to_html(full_html=False)
+
+    return render(request, 'reports/inventory_overview.html', {'chart_div': chart_div})
+
+
+def inventory_trend_analysis(request):
+    stock_history = StockHistory.objects.all()
+
+    item_names = set()
+    data = {}
+
+    for record in stock_history:
+        item_names.add(record.item_name)
+        if record.item_name not in data:
+            data[record.item_name] = {'dates': [], 'quantities': []}
+        data[record.item_name]['dates'].append(record.timestamp)
+        data[record.item_name]['quantities'].append(record.quantity)
+
+    line_charts = []
+
+    for item_name in item_names:
+        line_chart = go.Scatter(
+            x=data[item_name]['dates'], y=data[item_name]['quantities'], mode='lines', name=item_name)
+        line_charts.append(line_chart)
+
+    layout = go.Layout(title='Inventory Trend Analysis', xaxis=dict(
+        title='Date'), yaxis=dict(title='Quantity'))
+    figure = go.Figure(data=line_charts, layout=layout)
+    chart_div = figure.to_html(full_html=False)
+
+    return render(request, 'reports/inventory_trend_analysis.html', {'chart_div': chart_div})
+
+
+def category_analysis(request):
+    stocks = Stock.objects.all()
+
+    category_quantities = {}
+    for stock in stocks:
+        category_name = stock.category.name
+        quantity = stock.quantity
+        if category_name in category_quantities:
+            category_quantities[category_name] += quantity
+        else:
+            category_quantities[category_name] = quantity
+
+    categories = list(category_quantities.keys())
+    quantities = list(category_quantities.values())
+
+    pie_chart = go.Pie(labels=categories, values=quantities)
+    layout = go.Layout(title='Category-wise Analysis')
+    figure = go.Figure(data=[pie_chart], layout=layout)
+    chart_div = figure.to_html(full_html=False)
+
+    return render(request, 'reports/category_analysis.html', {'chart_div': chart_div})
+
+
+def stock_movement_analysis(request):
+    # Fetch stock data
+    stocks = Stock.objects.all()
+
+    timestamps = [stock.timestamp for stock in stocks]
+    receive_quantities = [stock.receive_quantity for stock in stocks]
+    issue_quantities = [stock.issue_quantity for stock in stocks]
+
+    receive_chart = go.Scatter(
+        x=timestamps, y=receive_quantities, mode='lines', name='Received Quantity')
+    issue_chart = go.Scatter(
+        x=timestamps, y=issue_quantities, mode='lines', name='Issued Quantity')
+
+    layout = go.Layout(title='Stock Movement Analysis',
+                       xaxis=dict(title='Timestamp'),
+                       yaxis=dict(title='Quantity'))
+
+    figure = go.Figure(data=[receive_chart, issue_chart], layout=layout)
+
+    chart_div = figure.to_html(full_html=False)
+
+    return render(request, 'report/stock_movement_analysis.html', {'chart_div': chart_div})
+
+
+def reorder_level_monitoring(request):
+    stocks = Stock.objects.all()
+
+    low_stock_items = [
+        stock for stock in stocks if stock.quantity < stock.reorder_level]
+    if low_stock_items:
+        message = 'Some items are below the reorder level!'
+        alert_color = 'red'
+    else:
+        message = 'All items are above the reorder level.'
+        alert_color = 'green'
+    alert_html = f'<div style="background-color:{alert_color}; padding: 10px; border-radius: 5px;">{message}</div>'
+
+    return render(request, 'report/reorder_level_monitoring.html', {'alert_html': alert_html})
