@@ -47,6 +47,9 @@
       margin: 0 0 15px 15px;
     }
     .widget-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       background: #279be4;
     }
     .widget-header h2 {
@@ -68,42 +71,6 @@
     }
   </style>
   <body>
-    <h1>Stock Reports</h1>
-
-    <!-- Inventory Overview Report -->
-    <div id="inventory_overview">
-      <h2>Inventory Overview</h2>
-      <div>{{ inventory_overview_chart|safe }}</div>
-      <div>
-        <a href="{% url 'download_inventory_data' %}" download
-          ><button>Download Inventory Data</button></a
-        >
-      </div>
-    </div>
-
-    <!-- Inventory Trend Analysis Report -->
-    <div id="inventory_trend">
-      <h2>Inventory Trend Analysis</h2>
-      <div>{{ inventory_trend_chart|safe }}</div>
-    </div>
-
-    <!-- Category-wise Analysis Report -->
-    <div id="category_analysis">
-      <h2>Category-wise Analysis</h2>
-      <div>{{ category_analysis_chart|safe }}</div>
-    </div>
-
-    <!-- Stock Movement Analysis Report -->
-    <div id="stock_movement_analysis">
-      <h2>Stock Movement Analysis</h2>
-      <div>{{ stock_movement_analysis_chart|safe }}</div>
-    </div>
-
-    <!-- Reorder Level Monitoring Report -->
-    <div id="reorder_level_monitoring">
-      <h2>Reorder Level Monitoring</h2>
-      <div>{{ reorder_level_monitoring_alert|safe }}</div>
-    </div>
     <section>
       <div class="content">
         <div class="content-header">
@@ -117,17 +84,14 @@
         <div class="widget-box sample-widget">
           <div class="widget-header">
             <h2>Inventory Overview</h2>
-            <i class="fa fa-cog"></i>
+            <a href="{% url 'download_inventory_data' %}" download
+              ><button>Download Inventory Data</button></a
+            >
           </div>
           <div class="widget-content">
             <!-- Inventory Overview Report -->
             <div id="inventory_overview">
               <div>{{ inventory_overview_chart|safe }}</div>
-              <div>
-                <a href="{% url 'download_inventory_data' %}" download
-                  ><button>Download Inventory Data</button></a
-                >
-              </div>
             </div>
           </div>
         </div>
