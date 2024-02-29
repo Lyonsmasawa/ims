@@ -1,3 +1,5 @@
+from .models import Stock
+from django.shortcuts import render
 from django.shortcuts import render, redirect
 import csv
 from django.http import HttpResponse
@@ -282,7 +284,7 @@ def stock_movement_analysis(request):
 
     chart_div = figure.to_html(full_html=False)
 
-    return render(request, 'report/stock_movement_analysis.html', {'chart_div': chart_div})
+    return render(request, 'reports/stock_movement_analysis.html', {'chart_div': chart_div})
 
 
 def reorder_level_monitoring(request):
@@ -298,4 +300,63 @@ def reorder_level_monitoring(request):
         alert_color = 'green'
     alert_html = f'<div style="background-color:{alert_color}; padding: 10px; border-radius: 5px;">{message}</div>'
 
-    return render(request, 'report/reorder_level_monitoring.html', {'alert_html': alert_html})
+    return render(request, 'reports/reorder_level_monitoring.html', {'alert_html': alert_html})
+
+
+# views.py
+
+
+def combined_reports(request):
+    # Inventory Overview Report
+    stocks = Stock.objects.all()
+    item_names = [stock.item_name for stock in stocks]
+    quantities = [stock.quantity for stock in stocks]
+    bar_chart = go.Bar(x=item_names, y=quantities)
+    inventory_overview_chart = go.Figure(data=[bar_chart])
+
+    # Inventory Trend Analysis Report
+    timestamps = [stock.timestamp for stock in stocks]
+    inventory_trend_chart = go.Figure(
+        data=[go.Scatter(x=timestamps, y=quantities, mode='lines')])
+
+    # Category-wise Analysis Report
+    categories = Category.objects.all()
+    category_names = [category.name for category in categories]
+    category_quantities = [sum(stock.quantity for stock in Stock.objects.filter(
+        category=category)) for category in categories]
+    category_analysis_chart = go.Figure(
+        data=[go.Pie(labels=category_names, values=category_quantities, hole=0.3)])
+
+    # Stock Movement Analysis Report
+    receive_quantities = [stock.receive_quantity for stock in stocks]
+    issue_quantities = [stock.issue_quantity for stock in stocks]
+    stock_movement_analysis_chart = go.Figure(data=[go.Scatter(x=timestamps, y=receive_quantities, mode='lines', name='Received Quantity'),
+                                                    go.Scatter(x=timestamps, y=issue_quantities, mode='lines', name='Issued Quantity')])
+
+    # Reorder Level Monitoring Report
+    low_stock_items = [
+        stock for stock in stocks if stock.quantity < stock.reorder_level]
+    if low_stock_items:
+        reorder_level_monitoring_alert = '<div style="background-color:red; padding: 10px; border-radius: 5px;">Some items are below the reorder level!</div>'
+    else:
+        reorder_level_monitoring_alert = '<div style="background-color:green; padding: 10px; border-radius: 5px;">All items are above the reorder level.</div>'
+
+    return render(request, 'reports/combined_reports.html', {'inventory_overview_chart': inventory_overview_chart.to_html(full_html=False),
+                                                             'inventory_trend_chart': inventory_trend_chart.to_html(full_html=False),
+                                                             'category_analysis_chart': category_analysis_chart.to_html(full_html=False),
+                                                             'stock_movement_analysis_chart': stock_movement_analysis_chart.to_html(full_html=False),
+                                                             'reorder_level_monitoring_alert': reorder_level_monitoring_alert})
+
+
+def download_inventory_data(request):
+    stocks = Stock.objects.all()
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="inventory_data.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Item Name', 'Quantity'])
+    for stock in stocks:
+        writer.writerow([stock.item_name, stock.quantity])
+
+    return response
