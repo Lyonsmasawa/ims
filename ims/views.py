@@ -287,23 +287,6 @@ def stock_movement_analysis(request):
     return render(request, 'reports/stock_movement_analysis.html', {'chart_div': chart_div})
 
 
-def reorder_level_monitoring(request):
-    stocks = Stock.objects.all()
-
-    low_stock_items = [
-        stock for stock in stocks if stock.quantity < stock.reorder_level]
-    if low_stock_items:
-        message = 'Some items are below the reorder level!'
-        alert_color = 'red'
-    else:
-        message = 'All items are above the reorder level.'
-        alert_color = 'green'
-    alert_html = f'<div style="background-color:{alert_color}; padding: 10px; border-radius: 5px;">{message}</div>'
-
-    return render(request, 'reports/reorder_level_monitoring.html', {'alert_html': alert_html})
-
-
-# views.py
 
 
 def combined_reports(request):

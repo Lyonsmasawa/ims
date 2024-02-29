@@ -19,8 +19,6 @@ urlpatterns = [
     path('category_analysis/', category_analysis, name='category_analysis'),
     path('stock_movement_analysis/', stock_movement_analysis,
          name='stock_movement_analysis'),
-    path('reorder_level_monitoring/', reorder_level_monitoring,
-         name='reorder_level_monitoring'),
     path('combined_reports/', combined_reports, name='combined_reports'),
     path('download_inventory_data/', download_inventory_data,
          name='download_inventory_data'),
