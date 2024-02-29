@@ -47,6 +47,12 @@ class StockUpdateForm(forms.ModelForm):
         model = Stock
         fields = ['category', 'item_name', 'quantity']
 
+    def clean_quantity(self):
+        quantity = self.cleaned_data['quantity']
+        if quantity <= 0:
+            raise forms.ValidationError("Quantity must be greater than 0.")
+        return quantity
+
 
 class IssueForm(forms.ModelForm):
     class Meta:
@@ -70,8 +76,22 @@ class ReceiveForm(forms.ModelForm):
         model = Stock
         fields = ['receive_quantity', 'receive_by']
 
+    def clean_receive_quantity(self):
+        receive_quantity = self.cleaned_data['receive_quantity']
+        if receive_quantity <= 0:
+            raise forms.ValidationError(
+                "Receive quantity must be greater than 0.")
+        return receive_quantity
+
 
 class ReorderLevelForm(forms.ModelForm):
     class Meta:
         model = Stock
         fields = ['reorder_level']
+
+    def clean_reorder_level(self):
+        reorder_level = self.cleaned_data['reorder_level']
+        if reorder_level <= 0:
+            raise forms.ValidationError(
+                "Reorder level must be greater than 0.")
+        return reorder_level
