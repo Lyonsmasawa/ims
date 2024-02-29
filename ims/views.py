@@ -13,7 +13,7 @@ import plotly.graph_objs as go
 
 
 def home(request):
-    title = "welcome: this is the our homepage"
+    title = "Mini Inventory Stcok Management"
     context = {"title": title}
     return render(request, 'home.html', context)
 
@@ -285,8 +285,6 @@ def stock_movement_analysis(request):
     chart_div = figure.to_html(full_html=False)
 
     return render(request, 'reports/stock_movement_analysis.html', {'chart_div': chart_div})
-
-
 
 
 def combined_reports(request):
