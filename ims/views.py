@@ -20,7 +20,7 @@ def home(request):
 
 @login_required
 def list_items(request):
-    header = 'list of items'
+    header = 'list of items in stock'
     form = StockSearchForm(request.POST or None)
     queryset = Stock.objects.all()
 
@@ -103,8 +103,9 @@ def issue_items(request, pk):
     form = IssueForm(request.POST or None, instance=queryset)
     if form.is_valid():
         instance = form.save(commit=False)
-        instance.quantity -= instance.issue_quantity
+        instance.quantity -= int(instance.issue_quantity)
         instance.issue_by = str(request.user)
+        instance.save()
         messages.success(request, 'Issued successfully.' + str(instance.quantity) +
                          " " + str(instance.item_name) + "s now left in store")
         return redirect('/stock_detail/' + str(instance.id))
@@ -123,8 +124,9 @@ def receive_items(request, pk):
     form = ReceiveForm(request.POST or None, instance=queryset)
     if form.is_valid():
         instance = form.save(commit=False)
-        instance.quantity += instance.issue_quantity
-        instance.issue_by = str(request.user)
+        instance.quantity += int(instance.receive_quantity)
+        instance.receive_by = str(request.user)
+        instance.save()
         messages.success(request, 'Received successfully.' + str(instance.quantity) +
                          " " + str(instance.item_name) + "s now left in store")
         return redirect('/stock_detail/' + str(instance.id))
@@ -156,7 +158,7 @@ def reorder_level(request, pk):
 
 @login_required
 def list_history(request):
-    header = 'list of items'
+    header = 'Tracking of all changes in the system'
     form = StockHistorySearchForm(request.POST or None)
     queryset = StockHistory.objects.all()
 

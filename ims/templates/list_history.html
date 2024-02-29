@@ -59,77 +59,75 @@
     <link rel="stylesheet" href="{% static 'css/navbar-top-fixed.css' %}" />
   </head>
   <body>
-    {% include 'navbar.html' %}
+    {% include 'navbar.html' %} {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+      <li {% if message.tags %} class="{{message.tags}}" {% endif %}>
+        {{message}}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
 
-      {% if messages %}
-      <ul class="messages">
-        {% for message in messages %}
-        <li {% if message.tags %} class="{{message.tags}}" {% endif %}>
-          {{message}}
-        </li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-
-      <div class="jumbotron">
-        <div class="header">{{header}}</div>
-        <div class="row">
-          <div class="col-sm-2">
-            <form action="" class="py-4" method="post">
-              {% csrf_token %} {{form|crispy}}
-              <input
-                type="submit"
-                class="btn btn-primary my-button"
-                value="search"
-              />
-            </form>
-          </div>
-          <br />
-          <div class="col-sm-10">
-            <div class="display-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>CATEGORY</th>
-                    <th>ITEM NAME</th>
-                    <th>QUANTITY IN STORE</th>
-                    <th>REORDER LEVEL</th>
-                    <!-- <th>TIME ADDED</th> -->
-                    <th>LAST UPDATED</th>
-                    <th>DELETE</th>
-                  </tr>
-                </thead>
-                {% for instance in queryset %}
+    <div class="jumbotron">
+      <div class="header">{{header}}</div>
+      <div class="row">
+        <div class="col-sm-2">
+          <form action="" class="py-4" method="post">
+            {% csrf_token %} {{form|crispy}}
+            <input
+              type="submit"
+              class="btn btn-primary my-button"
+              value="search"
+            />
+          </form>
+        </div>
+        <br />
+        <div class="col-sm-10">
+          <div class="display-table">
+            <table>
+              <thead>
                 <tr>
-                  <!-- <td>{{forloop.counter}}</td> -->
-                  <td>{{instance.category}}</td>
-                  <td>
-                    <a href="{% url 'update_items' instance.id %}"
-                      >{{instance.item_name}}</a
-                    >
-                  </td>
-                  <td>
-                    {% if instance.quantity <= instance.reorder_level %}
-                    <div style="background-color: orange">
-                      <a href="{% url 'stock_detail' instance.id %}"
-                        >{{instance.quantity}}</a
-                      >
-                    </div>
-                    {% else %}
+                  <th>CATEGORY</th>
+                  <th>ITEM NAME</th>
+                  <th>QUANTITY IN STORE</th>
+                  <th>REORDER LEVEL</th>
+                  <!-- <th>TIME ADDED</th> -->
+                  <th>TIME</th>
+                  <!-- <th>DELETE</th> -->
+                </tr>
+              </thead>
+              {% for instance in queryset %}
+              <tr>
+                <!-- <td>{{forloop.counter}}</td> -->
+                <td>{{instance.category}}</td>
+                <td>
+                  <a href="{% url 'update_items' instance.id %}"
+                    >{{instance.item_name}}</a
+                  >
+                </td>
+                <td>
+                  {% if instance.quantity <= instance.reorder_level %}
+                  <div style="background-color: orange">
                     <a href="{% url 'stock_detail' instance.id %}"
                       >{{instance.quantity}}</a
                     >
+                  </div>
+                  {% else %}
+                  <a href="{% url 'stock_detail' instance.id %}"
+                    >{{instance.quantity}}</a
+                  >
 
-                    {% endif %}
-                  </td>
-                  <td>
-                    <a href="{% url 'reorder_level' instance.id %}"
-                      >{{instance.reorder_level}}</a
-                    >
-                  </td>
-                  <!-- <td>{{instance.timestamp}}</td> -->
-                  <td>{{instance.last_updated}}</td>
-                  <td>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'reorder_level' instance.id %}"
+                    >{{instance.reorder_level}}</a
+                  >
+                </td>
+                <!-- <td>{{instance.timestamp}}</td> -->
+                <td>{{instance.last_updated}}</td>
+                <!-- <td>
                     <a href="{% url 'delete_items' instance.id %}">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -147,14 +145,14 @@
                         />
                       </svg>
                     </a>
-                  </td>
-                </tr>
-                {% endfor %}
-              </table>
-            </div>
+                  </td> -->
+              </tr>
+              {% endfor %}
+            </table>
           </div>
         </div>
       </div>
+    </div>
   </body>
   <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
   <script src="{% static 'js/jquery-ui-1.13.2/jquery-ui.min.js' %}"></script>

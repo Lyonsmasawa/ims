@@ -53,6 +53,17 @@ class IssueForm(forms.ModelForm):
         model = Stock
         fields = ['issue_quantity', 'issue_to']
 
+    def clean_issue_quantity(self):
+        issue_quantity = self.cleaned_data['issue_quantity']
+        stock_instance = self.instance
+
+        # Check if the issue quantity is greater than the available quantity in stock
+        if issue_quantity > stock_instance.quantity:
+            raise forms.ValidationError(
+                "Issue quantity cannot be greater than the available quantity in stock.")
+
+        return issue_quantity
+
 
 class ReceiveForm(forms.ModelForm):
     class Meta:
